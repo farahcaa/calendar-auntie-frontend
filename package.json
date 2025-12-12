@@ -5,8 +5,9 @@
   "type": "module",
   "author": "yakovliam",
   "scripts": {
-    "dev": "bunx --bun vite",
-    "build": "bunx --bun vite build",
+    "generate": "rm -rf src/gen/ ; kubb generate",
+    "dev": "bun run generate ; bunx --bun vite",
+    "build": "bun run generate ; bunx --bun vite build",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "preview": "bunx --bun vite preview"

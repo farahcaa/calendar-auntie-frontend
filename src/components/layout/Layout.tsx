@@ -6,7 +6,7 @@ import AuthContextProvider from "../auth/AuthContextProvider";
 const Layout = () => {
   return (
     <AuthContextProvider>
-      <div className="w-full flex justify-center">
+      <div className="w-full flex justify-center h-full">
         <div
           className="flex flex-col
         min-h-screen w-full max-w-[600px] shadow-xl"
@@ -14,7 +14,7 @@ const Layout = () => {
           <div className="sticky top-0 z-50 bg-white">
             <Header />
           </div>
-          <div className="grow">
+          <div className="w-full h-full">
             <Outlet />
           </div>
 

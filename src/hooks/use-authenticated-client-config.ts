@@ -1,5 +1,3 @@
-import useEasyAuth from "./use-easy-auth";
-
 export type UseAuthenticatedClientConfig = {
   client: {
     headers: {
@@ -9,12 +7,11 @@ export type UseAuthenticatedClientConfig = {
 };
 
 const useAuthenticatedClientConfig = (): UseAuthenticatedClientConfig => {
-  const { user } = useEasyAuth();
-
+  const auth = localStorage.getItem("auth");
   return {
     client: {
       headers: {
-        Authorization: `Bearer ${user?.access_token}`,
+        Authorization: `Bearer ${auth ?? ""}`,
       },
     },
   };

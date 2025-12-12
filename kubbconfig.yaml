@@ -1,1 +1,106 @@
-{}
+openapi: 3.1.0
+info:
+  title: Product API
+  version: 1.0.0
+
+paths:
+
+  # Endpoint to get product information
+  /products:
+    get:
+      summary: Get product information
+      description: Returns a single product.
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductDTO"
+
+  #Auth 
+  /auth/login:
+    post:
+      summary: Authenticate a user
+      description: Accepts username and password and returns an auth token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginDTO"
+      responses:
+        "200":
+          description: Successful authentication
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Invalid username or password."
+
+components:
+  schemas:
+
+    # Definition of ProductDTO schema
+    ProductDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "prod_123"
+        name:
+          type: string
+          example: "Wireless Headphones"
+        price:
+          type: number
+          format: float
+          example: 79.99
+        description:
+          type: string
+          example: "Noise-cancelling over-ear wireless headphones."
+        inStock:
+          type: boolean
+          example: true
+      required:
+      - id
+      - name
+      - price
+      - inStock
+      # Definition of LoginDTO schema
+    LoginDTO:
+      type: object
+      properties:
+        username:
+          type: string
+          example: chris_farah
+        password:
+          type: string
+          format: password
+          example: superSecret123
+      required:
+      - username
+      - password
+
+    #Responses
+
+    # Definition of AuthResponse schema
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        role:
+          type: string
+          example: "admin"
+      required:
+      - token
