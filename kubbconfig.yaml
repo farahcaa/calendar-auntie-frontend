@@ -47,7 +47,81 @@ paths:
                     type: string
                     example: "Invalid username or password."
 
+  #Admin Products
+
+  # Create product
+  /admin/products:
+    post:
+      summary: create product
+      description: used to create a post
+      responses:
+        "200":
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+
+    # Get all products
+    get:
+      operationId: getAdminProducts
+      summary: Get admin products (paged)
+      tags:
+      - AdminProducts
+      parameters:
+      - name: page
+        in: query
+        description: Zero-based page index
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+      - name: size
+        in: query
+        description: Page size
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 200
+          default: 20
+      - name: sort
+        in: query
+        description: Sort criteria in the format `property,asc|desc`. Can be repeated.
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+            example: "name,asc"
+        style: form
+        explode: true
+
+      responses:
+        "200":
+          description: Page of admin products
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageAdminProductDTO"
+        "401":
+          description: Unauthorized (missing/invalid token)
+        "403":
+          description: Forbidden (not allowed)
+
 components:
+
+  # Security Schemes
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
   schemas:
 
     # Definition of ProductDTO schema
@@ -104,3 +178,131 @@ components:
           example: "admin"
       required:
       - token
+
+    AdminProductDTO:
+      type: object
+      required:
+      - thumbnail
+      - productId
+      - price
+      - name
+      properties:
+        thumbnail:
+          type: string
+          description: URL or key to the product thumbnail image
+          example: "https://cdn.example.com/products/abc-thumb.jpg"
+        productId:
+          type: string
+          format: uuid
+          example: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+        price:
+          type: number
+          format: double
+          example: 29.99
+        name:
+          type: string
+          example: "Mantra Calendar 2026"
+
+    # Spring Page<T>-style response
+    PageAdminProductDTO:
+      type: object
+      required:
+      - content
+      - pageable
+      - totalElements
+      - totalPages
+      - size
+      - number
+      - numberOfElements
+      - first
+      - last
+      - empty
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminProductDTO"
+
+        pageable:
+          $ref: "#/components/schemas/Pageable"
+
+        totalElements:
+          type: integer
+          format: int64
+          example: 125
+        totalPages:
+          type: integer
+          format: int32
+          example: 7
+        size:
+          type: integer
+          format: int32
+          example: 20
+        number:
+          type: integer
+          format: int32
+          description: Current page number (zero-based)
+          example: 0
+        numberOfElements:
+          type: integer
+          format: int32
+          example: 20
+        first:
+          type: boolean
+          example: true
+        last:
+          type: boolean
+          example: false
+        empty:
+          type: boolean
+          example: false
+
+        sort:
+          $ref: "#/components/schemas/Sort"
+
+    Pageable:
+      type: object
+      required:
+      - pageNumber
+      - pageSize
+      - offset
+      - paged
+      - unpaged
+      properties:
+        pageNumber:
+          type: integer
+          format: int32
+          example: 0
+        pageSize:
+          type: integer
+          format: int32
+          example: 20
+        offset:
+          type: integer
+          format: int64
+          example: 0
+        paged:
+          type: boolean
+          example: true
+        unpaged:
+          type: boolean
+          example: false
+        sort:
+          $ref: "#/components/schemas/Sort"
+
+    Sort:
+      type: object
+      required:
+      - empty
+      - sorted
+      - unsorted
+      properties:
+        empty:
+          type: boolean
+          example: false
+        sorted:
+          type: boolean
+          example: true
+        unsorted:
+          type: boolean
+          example: false

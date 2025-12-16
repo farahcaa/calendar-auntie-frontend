@@ -11,7 +11,7 @@ const useAuthenticatedClientConfig = (): UseAuthenticatedClientConfig => {
   return {
     client: {
       headers: {
-        Authorization: `Bearer ${auth ?? ""}`,
+        Authorization: auth ? `Bearer ${auth}` : "",
       },
     },
   };
