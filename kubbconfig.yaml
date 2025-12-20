@@ -113,6 +113,111 @@ paths:
         "403":
           description: Forbidden (not allowed)
 
+  #Get upload URL for post draft media
+
+  /admin/products/{productId}/media:
+    post:
+      summary: Generate pre-signed URL for post draft media upload
+      tags:
+      - Media
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Successfully generated upload URL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InitializeMediaUploadDTO"
+        "400":
+          description: Invalid postDraftId or request format
+        "404":
+          description: Post draft not found
+    #Confirm uploaded media
+
+  /admin/products/{productId}/media/{mediaId}:
+    put:
+      summary: Confirm uploaded media for post draft
+      tags:
+      - Media
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: mediaId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Successfully confirmed uploaded media
+        "400":
+          description: Invalid postDraftId or request format
+        "404":
+          description: Post draft or media not found
+    #delete media from post draft
+
+  /admin/products/{productId}/media/delete/{mediaId}:
+    delete:
+      summary: Delete media from post draft
+      tags:
+      - Media
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: mediaId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Media deleted successfully
+        "400":
+          description: Invalid postDraftId or mediaId
+        "404":
+          description: Post draft or media not found
+
+  /admin/products/{productId}:
+    get:
+      summary: Get media for a product
+      tags:
+      - Media
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Successfully retrieved media
+          content:
+            application/json:
+              schema:
+                type: Object
+                items:
+                  $ref: "#/components/schemas/FullAdminProductDTO"
+        "400":
+          description: Invalid productId
+        "404":
+          description: Product not found
 components:
 
   # Security Schemes
@@ -306,3 +411,59 @@ components:
         unsorted:
           type: boolean
           example: false
+
+    InitializeMediaUploadDTO:
+      type: object
+      properties:
+        uploadUrl:
+          type: string
+          format: uri
+        mediaId:
+          type: string
+          format: uuid
+      required:
+      - uploadUrl
+      - mediaId
+
+    FullAdminProductDTO:
+      type: object
+      required:
+      - id
+      - sku
+      - isActive
+      - title
+      - price
+      - inventoryQty
+      - description
+      - thumbnails
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+        title:
+          type: string
+          example: "Mantra Calendar 2026"
+        price:
+          type: number
+          format: double
+          example: 29.99
+        inventoryQty:
+          type: integer
+          format: int32
+          example: 100
+        description:
+          type: string
+          example: "A stylish and functional calendar for the year 2026."
+        thumbnails:
+          type: array
+          items:
+            type: string
+            format: uri
+          example: [ "https://cdn.example.com/products/abc-thumb.jpg" ]
+        sku:
+          type: string
+          example: "MTR-2026"
+        isActive:
+          type: boolean
+          example: true

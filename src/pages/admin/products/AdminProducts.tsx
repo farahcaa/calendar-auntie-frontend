@@ -7,20 +7,20 @@ const AdminProducts = () => {
   const config = useAuthenticatedClientConfig();
   const { mutateAsync } = usePostAdminProducts(config);
   const { data } = useGetAdminProducts({ page: 0 }, config);
-  console.log(data);
+
   const handleCreatePost = async () => {
     const data = await mutateAsync();
     console.log(data);
-    navigate(`admin/products/${data.data.id}`);
+    navigate(`/admin/products/${data.data}`);
   };
 
   return (
     <div className="flex flex-col gap-4 p-4">
       <div
-        className="bg-blue-500 text-white py-2 px-4 w-32 rounded hover:bg-blue-600"
+        className="bg-blue-500 text-white py-2 px-4 w-40 rounded hover:bg-blue-600"
         onClick={handleCreatePost}
       >
-        Create Post
+        Create Product
       </div>
       <div className="flex flex-wrap gap-4">
         {data?.data.content.map((product) => (
@@ -39,7 +39,13 @@ const ProductCard = ({ product }: { product: any }) => {
       className="w-48 h-64 border rounded-lg shadow-md p-4 flex flex-col"
       onClick={() => navigate(`/admin/products/${product.id}`)}
     >
-      <div className="bg-gray-200 h-32 mb-4 rounded"></div>
+      <div className="bg-gray-200 h-32 mb-4 rounded">
+        <img
+          src={import.meta.env.VITE_MEDIA_BASE_URL + product.thumbnail}
+          alt={product.name}
+          className="w-full h-full object-cover"
+        />
+      </div>
       <div className="font-bold text-lg mb-2">{product.name}</div>
       <div className="text-gray-600 mb-4">${product.price}</div>
       <button className="mt-auto bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">

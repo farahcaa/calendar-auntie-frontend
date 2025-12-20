@@ -1,14 +1,70 @@
+import {
+  useDeleteAdminProductsProductidMediaDeleteMediaid,
+  useGetAdminProductsProductid,
+} from "@/gen";
+import { useProductMediaUpload } from "@/hooks/post-media-upload";
+import useAuthenticatedClientConfig from "@/hooks/use-authenticated-client-config";
 import React, { useState } from "react";
+import { useParams } from "react-router";
 
 const AdminProductIndividual: React.FC = () => {
-  const [form, setForm] = useState({
-    sku: "",
-    title: "",
-    description: "",
-    price: "0.00",
-    inventory_qty: 0,
-    is_active: true,
+  const config = useAuthenticatedClientConfig();
+  const { productId } = useParams();
+
+  const { data } = useGetAdminProductsProductid(productId || "", {
+    ...config,
   });
+
+  const { mutateAsync } = useDeleteAdminProductsProductidMediaDeleteMediaid({
+    ...config,
+  });
+  const [form, setForm] = useState({
+    sku: data?.data.sku || "",
+    title: data?.data.title || "",
+    description: data?.data.description || "",
+    price: data?.data.price || "0.00",
+    inventory_qty: data?.data.inventory_qty || 0,
+    is_active: data?.data.is_active || false,
+  });
+
+  const {
+    upload,
+    mediaId,
+    uploading,
+    error: uploadError,
+  } = useProductMediaUpload();
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    if (data?.data.thumbnails && data?.data.thumbnails?.length > 0) {
+      alert("Product already has an image uploaded.");
+      return;
+    }
+    upload(productId || "", files[0])
+      .then(() => window.location.reload())
+      .catch(async (err) => {
+        console.error("Error uploading file:", err);
+        alert("Error uploading file: " + uploadError?.message);
+      });
+    // reset the input value to allow re-uploading the same file
+    e.target.value = "";
+  };
+
+  const handleDeleteMedia = async () => {
+    if (!data?.data.thumbnails || data?.data.thumbnails?.length === 0) {
+      alert("No media to delete.");
+      return;
+    }
+    if (data.data.thumbnails.length > 0) {
+      const mediaId = data.data.thumbnails[0].split("/").pop();
+      console.log("Media ID to delete:", mediaId);
+      await mutateAsync({ productId: productId || "", mediaId: mediaId });
+    } else {
+      alert("No media ID available for deletion.");
+    }
+  };
 
   return (
     <div className="mx-auto max-w-[860px] p-4">
@@ -19,13 +75,36 @@ const AdminProductIndividual: React.FC = () => {
             Fill out the product details below.
           </p>
         </div>
-        <div className="my-10">
-          <button
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            onClick={() => {}}
-          >
-            add image
-          </button>
+        <div className="my-10 flex">
+          <div className="flex flex-col">
+            <label className="mb-1.5 block text-sm font-semibold text-zinc-900">
+              Upload Image
+            </label>
+            <input
+              placeholder="upload image"
+              alt="Upload Image"
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              type="file"
+              onChange={(e) => handleFileUpload(e)}
+            />
+            <button
+              className="mt-auto inline-flex items-center justify-center rounded-xl border border-zinc-900 bg-white px-4 py-2.5 text-sm font-semibold text-zinc-900 shadow-sm transition hover:bg-zinc-50 active:scale-[0.99]"
+              type="button"
+              onClick={() => handleDeleteMedia()}
+            >
+              Remove Image
+            </button>
+          </div>
+          <div className="flex w-60 h-60 ml-auto">
+            {data?.data.thumbnails?.map((thumbnail, index) => (
+              <img
+                key={index}
+                src={import.meta.env.VITE_MEDIA_BASE_URL + thumbnail}
+                alt={`Thumbnail ${index + 1}`}
+                className=" object-cover"
+              />
+            ))}
+          </div>
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {/* SKU */}
