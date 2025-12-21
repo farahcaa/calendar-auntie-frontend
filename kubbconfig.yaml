@@ -15,7 +15,8 @@ paths:
           description: Successful response
           content:
             application/json:
-              schema:
+              type: array
+              items:
                 $ref: "#/components/schemas/ProductDTO"
 
   #Auth 
@@ -218,6 +219,37 @@ paths:
           description: Invalid productId
         "404":
           description: Product not found
+    put:
+      summary: update product
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FullAdminProductDTO"
+      responses:
+        "200":
+          description: Successfully updated product
+
+    delete:
+      summary: delete product
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Successfully deleted product
 components:
 
   # Security Schemes
@@ -236,7 +268,7 @@ components:
         id:
           type: string
           example: "prod_123"
-        name:
+        title:
           type: string
           example: "Wireless Headphones"
         price:
@@ -246,14 +278,15 @@ components:
         description:
           type: string
           example: "Noise-cancelling over-ear wireless headphones."
-        inStock:
-          type: boolean
-          example: true
+        thumbnail:
+          type: string
+          example: "https://cdn.example.com/products/abc-thumb.jpg"
       required:
       - id
-      - name
+      - title
       - price
-      - inStock
+      - description
+      - thumbnail
       # Definition of LoginDTO schema
     LoginDTO:
       type: object

@@ -1,16 +1,28 @@
 import {
+  useDeleteAdminProductsProductid,
   useDeleteAdminProductsProductidMediaDeleteMediaid,
   useGetAdminProductsProductid,
+  usePutAdminProductsProductid,
 } from "@/gen";
 import { useProductMediaUpload } from "@/hooks/post-media-upload";
 import useAuthenticatedClientConfig from "@/hooks/use-authenticated-client-config";
-import React, { useState } from "react";
-import { useParams } from "react-router";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router";
 
 const AdminProductIndividual: React.FC = () => {
   const config = useAuthenticatedClientConfig();
+  const navigate = useNavigate();
   const { productId } = useParams();
 
+  const { mutateAsync: deleteProduct, isPending: isPendingUpdate } =
+    useDeleteAdminProductsProductid({
+      ...config,
+    });
+
+  const { mutateAsync: updateProduct, isPending: isPendingDelete } =
+    usePutAdminProductsProductid({
+      ...config,
+    });
   const { data } = useGetAdminProductsProductid(productId || "", {
     ...config,
   });
@@ -18,13 +30,14 @@ const AdminProductIndividual: React.FC = () => {
   const { mutateAsync } = useDeleteAdminProductsProductidMediaDeleteMediaid({
     ...config,
   });
+
   const [form, setForm] = useState({
     sku: data?.data.sku || "",
     title: data?.data.title || "",
     description: data?.data.description || "",
     price: data?.data.price || "0.00",
-    inventory_qty: data?.data.inventory_qty || 0,
-    is_active: data?.data.is_active || false,
+    inventoryQty: data?.data.inventoryQty || 0,
+    isActive: data?.data.isActive || false,
   });
 
   const {
@@ -34,6 +47,36 @@ const AdminProductIndividual: React.FC = () => {
     error: uploadError,
   } = useProductMediaUpload();
 
+  useEffect(() => {
+    if (data) {
+      setForm({
+        sku: data.data.sku,
+        title: data.data.title,
+        description: data.data.description,
+        price: data.data.price,
+        inventoryQty: data.data.inventoryQty,
+        isActive: data.data.isActive,
+      });
+    }
+  }, [data]);
+
+  const handleDeleteProduct = async () => {
+    if (window.confirm("Are you sure you want to delete this product?")) {
+      await deleteProduct({ productId: productId || "" });
+      alert("Product deleted successfully.");
+      navigate("/admin/products");
+    }
+  };
+
+  const handleProductUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    await updateProduct({
+      productId: productId!,
+      data: form,
+    });
+    alert("Product updated successfully!");
+  };
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
@@ -43,12 +86,16 @@ const AdminProductIndividual: React.FC = () => {
       return;
     }
     upload(productId || "", files[0])
-      .then(() => window.location.reload())
+      .then(() => {
+        alert("Success please wait for image to load");
+        window.location.reload();
+      })
       .catch(async (err) => {
         console.error("Error uploading file:", err);
         alert("Error uploading file: " + uploadError?.message);
       });
     // reset the input value to allow re-uploading the same file
+
     e.target.value = "";
   };
 
@@ -61,6 +108,8 @@ const AdminProductIndividual: React.FC = () => {
       const mediaId = data.data.thumbnails[0].split("/").pop();
       console.log("Media ID to delete:", mediaId);
       await mutateAsync({ productId: productId || "", mediaId: mediaId });
+      alert("Media deleted successfully.");
+      window.location.reload();
     } else {
       alert("No media ID available for deletion.");
     }
@@ -178,6 +227,10 @@ const AdminProductIndividual: React.FC = () => {
               type="number"
               min={0}
               step={1}
+              value={form.inventoryQty}
+              onChange={(e) =>
+                setForm({ ...form, inventoryQty: e.target.value })
+              }
               placeholder="0"
             />
           </div>
@@ -185,27 +238,37 @@ const AdminProductIndividual: React.FC = () => {
           {/* Active */}
           <div className="flex items-center gap-3 md:pt-7">
             <input
-              id="is_active"
+              id="isActive"
               type="checkbox"
+              checked={form.isActive}
+              onChange={(e) => setForm({ ...form, isActive: e.target.checked })}
               className="h-4 w-4 rounded border-zinc-300 text-zinc-900 focus:ring-zinc-900/20"
             />
             <label
-              htmlFor="is_active"
+              htmlFor="isActive"
               className="text-sm font-semibold text-zinc-900"
             >
               Active{" "}
-              <span className="font-normal text-zinc-500">(is_active)</span>
+              <span className="font-normal text-zinc-500">(isActive)</span>
             </label>
           </div>
         </div>
 
         {/* Actions */}
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="mt-6 flex flex-row gap-3 justify-between">
           <button
             className="inline-flex items-center justify-center rounded-xl border border-zinc-900 bg-white px-4 py-2.5 text-sm font-semibold text-zinc-900 shadow-sm transition hover:bg-zinc-50 active:scale-[0.99]"
             type="button"
+            onClick={handleProductUpdate}
           >
-            Save Changes
+            {isPendingUpdate ? "Saving..." : "Save Changes"}
+          </button>
+          <button
+            className="inline-flex items-center justify-center rounded-xl border border-zinc-900 bg-red-500 px-4 py-2.5 text-sm font-semibold shadow-sm text-white  transition hover:bg-red-600 active:scale-[0.99]"
+            type="button"
+            onClick={handleDeleteProduct}
+          >
+            {isPendingDelete ? "Deleting..." : "Delete Product"}
           </button>
         </div>
       </div>

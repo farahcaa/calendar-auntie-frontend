@@ -11,6 +11,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { GetProducts200, useGetProducts } from "@/gen";
 
 /**
  * Jeanne Calendars – "Modern Retail" theme inspired by Banana Republic
@@ -218,41 +219,27 @@ function Hero() {
   );
 }
 
-function ProductCard({ p, onDirectOrder }) {
+function ProductCard(data: GetProducts200) {
+  console.log(data);
   return (
-    <div
-      className="group border rounded-sm overflow-hidden"
-      style={{ borderColor: PALETTE.line }}
-    >
+    <div className="group border rounded-sm overflow-hidden">
       <div className="overflow-hidden">
         <img
-          src={p.image}
-          alt={p.title}
+          src={import.meta.env.VITE_MEDIA_BASE_URL + "/" + data.data.thumbnail}
+          alt={"calendar image"}
           className="w-full h-80 object-cover transition-transform duration-500 group-hover:scale-105"
         />
       </div>
       <div className="px-4 py-5">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="font-semibold tracking-tight">{p.title}</h3>
-            <p className="text-sm" style={{ color: PALETTE.subtle }}>
-              {p.subtitle}
-            </p>
+            <h3 className="font-semibold tracking-tight">{data.data.title}</h3>
+            <p className="text-sm text-black">{data.data.description}</p>
           </div>
-          <div className="text-sm">${p.price}</div>
+          <div className="text-sm">${data.data.price}</div>
         </div>
         <div className="mt-4 flex gap-2">
-          <a href={p.printifyUrl} target="_blank" rel="noreferrer">
-            <Button variant="outline" className="rounded-none text-sm">
-              Shop Printify <ExternalLink className="w-4 h-4 ml-2" />
-            </Button>
-          </a>
-          <Button
-            className="rounded-none text-sm"
-            onClick={() => onDirectOrder(p)}
-          >
-            Direct Order
-          </Button>
+          <Button className="rounded-none text-sm">Direct Order</Button>
         </div>
       </div>
     </div>
@@ -397,6 +384,10 @@ function DirectOrderDialog({ open, setOpen, product }) {
 function Shop() {
   const [selected, setSelected] = useState(null);
   const [open, setOpen] = useState(false);
+  const { data } = useGetProducts();
+
+  console.log(data);
+
   return (
     <Container className="py-16" id="shop">
       <div
@@ -404,20 +395,10 @@ function Shop() {
         style={{ borderColor: PALETTE.line }}
       >
         <h2 className="font-serif text-4xl tracking-tight">New Arrivals</h2>
-        <a href={PRINTIFY_URL} className="text-sm underline">
-          View all on Printify
-        </a>
       </div>
       <div className="grid md:grid-cols-3 gap-8 mt-8">
-        {PRODUCTS.map((p) => (
-          <ProductCard
-            key={p.id}
-            p={p}
-            onDirectOrder={(prod) => {
-              setSelected(prod);
-              setOpen(true);
-            }}
-          />
+        {data?.data.content.map((p: GetProducts200) => (
+          <ProductCard data={p} />
         ))}
       </div>
       <DirectOrderDialog open={open} setOpen={setOpen} product={selected} />
