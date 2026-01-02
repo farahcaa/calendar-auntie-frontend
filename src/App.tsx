@@ -8,8 +8,13 @@ import AdminLogin from "./pages/admin/AdminLogin";
 import AdminProducts from "./pages/admin/products/AdminProducts";
 import AdminProductsIndividual from "./pages/admin/products/AdminProductIndividual";
 import AdminCustomers from "./pages/admin/customers/AdminCustomers";
-import AdminOrders from "./pages/admin/AdminOrders";
+import AdminOrders from "./pages/admin/orders/AdminOrders";
 import Layout from "./components/layout/Layout";
+import Checkout from "./pages/checkout/Checkout";
+import Details from "./pages/checkout/Details";
+import PaymentPage from "./pages/checkout/PaymentPage";
+import OrderSuccess from "./pages/OrderSuccess";
+import OrderIndividual from "./pages/admin/orders/OrderIndividual";
 
 function App() {
   return (
@@ -19,6 +24,10 @@ function App() {
         <AnalyticsProvider>
           <Routes>
             <Route path="/" element={<MomPage />} />
+            <Route path="/success" element={<OrderSuccess />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/details" element={<Details />} />
+            <Route path="/pay" element={<PaymentPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route element={<ProtectedRoute />}>
@@ -34,6 +43,10 @@ function App() {
                   element={<AdminCustomers />}
                 />
                 <Route path="/admin/orders" element={<AdminOrders />} />
+                <Route
+                  path="/admin/orders/:orderId"
+                  element={<OrderIndividual />}
+                />
               </Route>
             </Route>
           </Routes>

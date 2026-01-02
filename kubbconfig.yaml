@@ -20,6 +20,49 @@ paths:
                 items:
                   $ref: "#/components/schemas/ProductDTO"
 
+  /products/items:
+    get:
+      summary: Get cart items
+      description: Returns product info for the given IDs
+      parameters:
+      - in: query
+        name: ids
+        required: true
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Cart items found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProductReviewCheckoutDTO"
+
+  /checkout/pricing:
+    get:
+      summary: get tax and shipping information
+      description: returns tax and shipping prices
+      responses:
+        "200":
+          description: Tax and shipping information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tax:
+                    type: number
+                    format: double
+                  shipping:
+                    type: number
+                    format: double
+
   #Auth 
   /auth/login:
     post:
@@ -251,6 +294,149 @@ paths:
       responses:
         "200":
           description: Successfully deleted product
+
+  /admin/orders:
+    get:
+      operationId: getAdminOrders
+      summary: Get admin orders (paged)
+      tags:
+      - AdminOrders
+      parameters:
+      - name: page
+        in: query
+        description: Zero-based page index
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+      - name: size
+        in: query
+        description: Page size
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 200
+          default: 20
+      - name: sort
+        in: query
+        description: Sort criteria in the format `property,asc|desc`. Can be repeated.
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+            example: "name,asc"
+        style: form
+        explode: true
+
+      responses:
+        "200":
+          description: Page of admin products
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageAdminOrderDTO"
+        "401":
+          description: Unauthorized (missing/invalid token)
+        "403":
+          description: Forbidden (not allowed)
+
+  /admin/orders/paid:
+    get:
+      operationId: getAdminOrdersPaid
+      summary: Get admin orders (paged)
+      tags:
+      - AdminOrders
+      parameters:
+      - name: page
+        in: query
+        description: Zero-based page index
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+      - name: size
+        in: query
+        description: Page size
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 200
+          default: 20
+      - name: sort
+        in: query
+        description: Sort criteria in the format `property,asc|desc`. Can be repeated.
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+            example: "name,asc"
+        style: form
+        explode: true
+
+      responses:
+        "200":
+          description: Page of admin products
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageAdminOrderDTO"
+        "401":
+          description: Unauthorized (missing/invalid token)
+        "403":
+          description: Forbidden (not allowed)
+
+  /admin/orders/{orderId}:
+    get:
+      tags:
+      - AdminOrders
+      operationId: getAdminOrderById
+      summary: Get an individual order by id
+      parameters:
+      - name: orderId
+        in: path
+        required: true
+        description: The order id
+        schema:
+          type: string
+      responses:
+        "200":
+          description: The order details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IndividualOrderDTO"
+        "404":
+          description: Order not found
+        "401":
+          description: Unauthorized
+
+  /admin/orders/{orderId}/fulfill:
+    post:
+      tags:
+      - AdminOrders
+      operationId: fulfillAdminOrder
+      summary: Mark an order as fulfilled
+      parameters:
+      - name: orderId
+        in: path
+        required: true
+        description: The order ID to mark as fulfilled
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Order successfully marked as fulfilled
+        "404":
+          description: Order not found
+        "401":
+          description: Unauthorized
+
 components:
 
   # Security Schemes
@@ -342,6 +528,20 @@ components:
           type: string
           example: "Mantra Calendar 2026"
 
+    AdminOrderDTO:
+      type: object
+      required:
+      - id
+      - orderStatus
+      - timestamp
+      properties:
+        id:
+          type: string
+        orderStatus:
+          type: string
+        timestamp:
+          type: string
+
     # Spring Page<T>-style response
     PageAdminProductDTO:
       type: object
@@ -398,6 +598,64 @@ components:
 
         sort:
           $ref: "#/components/schemas/Sort"
+
+    PageAdminOrderDTO:
+      # Spring Page<T>-style response
+      PageAdminProductDTO:
+        type: object
+        required:
+        - content
+        - pageable
+        - totalElements
+        - totalPages
+        - size
+        - number
+        - numberOfElements
+        - first
+        - last
+        - empty
+        properties:
+          content:
+            type: array
+            items:
+              $ref: "#/components/schemas/AdminOrderDTO"
+
+          pageable:
+            $ref: "#/components/schemas/Pageable"
+
+          totalElements:
+            type: integer
+            format: int64
+            example: 125
+          totalPages:
+            type: integer
+            format: int32
+            example: 7
+          size:
+            type: integer
+            format: int32
+            example: 20
+          number:
+            type: integer
+            format: int32
+            description: Current page number (zero-based)
+            example: 0
+          numberOfElements:
+            type: integer
+            format: int32
+            example: 20
+          first:
+            type: boolean
+            example: true
+          last:
+            type: boolean
+            example: false
+          empty:
+            type: boolean
+            example: false
+
+          sort:
+            $ref: "#/components/schemas/Sort"
 
     Pageable:
       type: object
@@ -501,3 +759,121 @@ components:
         isActive:
           type: boolean
           example: true
+
+    ProductReviewCheckoutDTO:
+      type: object
+      properties:
+        title:
+          type: string
+        price:
+          type: number
+          format: double
+        id:
+          type: string
+          format: uuid
+        thumbnail:
+          type: string
+      required:
+      - title
+      - price
+      - productId
+      - thumbnail
+    IndividualOrderDTO:
+      type: object
+      required:
+      - Name
+      - email
+      - total
+      - tax
+      - shipping
+      - address
+      - orderItems
+      properties:
+        Name:
+          type: string
+        email:
+          type: string
+          format: email
+        total:
+          type: number
+          format: double
+        tax:
+          type: number
+          format: double
+        shipping:
+          type: number
+          format: double
+        address:
+          $ref: "#/components/schemas/AddressDTO"
+        orderItems:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderItemDTO"
+
+    AddressDTO:
+      type: object
+      required:
+      - addressType
+      - line1
+      - city
+      - state
+      - postalCode
+      - countryCode
+      properties:
+        addressType:
+          $ref: "#/components/schemas/AddressType"
+        line1:
+          type: string
+          maxLength: 255
+        line2:
+          type: string
+          maxLength: 255
+          nullable: true
+        city:
+          type: string
+          maxLength: 100
+        state:
+          type: string
+          maxLength: 100
+        postalCode:
+          type: string
+          maxLength: 20
+        countryCode:
+          type: string
+          maxLength: 2
+          description: ISO 3166-1 alpha-2 country code (e.g. "US", "DE")
+
+    OrderItemDTO:
+      type: object
+      required:
+      - id
+      - title
+      - thumbnail
+      - quantity
+      - unit_price
+      - total_price
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        thumbnail:
+          type: string
+          description: URL to thumbnail image
+        quantity:
+          type: integer
+          format: int32
+          minimum: 1
+        unit_price:
+          type: number
+          format: double
+        total_price:
+          type: number
+          format: double
+
+    AddressType:
+      type: string
+      description: Type of address (shipping or billing)
+      enum:
+      - SHIPPING
+      - BILLING

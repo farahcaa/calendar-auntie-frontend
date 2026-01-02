@@ -3,10 +3,8 @@ import { ShoppingCart, ChevronDown, X, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { GetProducts200, useGetProducts } from "@/gen";
-import { CheckoutFlowInternal } from "../checkout/CheckoutFlowInternal";
 import { useState } from "react";
-import Checkout from "../checkout/Checkout";
-import AddressForm from "../checkout/AddressForm";
+import { useNavigate } from "react-router";
 
 const PALETTE = {
   bg: "#FAF7F2", // warm cream
@@ -17,9 +15,8 @@ const PALETTE = {
 
 export default function MomPage() {
   const { data } = useGetProducts();
+  const navigate = useNavigate();
 
-  const [openCheckout, setOpenCheckout] = useState(false);
-  const [openForm, setOpenForm] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const tips = [
     {
@@ -61,6 +58,9 @@ export default function MomPage() {
     if (!items.includes(id)) {
       items.push(id);
       localStorage.setItem("cart", JSON.stringify(items));
+      alert("Item added!");
+    } else {
+      alert("Item already in cart!");
     }
   };
   // local helper for consistent layout
@@ -197,7 +197,7 @@ export default function MomPage() {
             </a>
             <button
               className="inline-flex items-center gap-1 sm:gap-2 hover:opacity-70 rounded-full border px-2 py-1 text-xs sm:text-sm"
-              onClick={() => setOpenCheckout(!openCheckout)}
+              onClick={() => navigate("/checkout")}
             >
               <ShoppingCart className="w-4 h-4" />
               <span className="hidden xs:inline">Cart</span>
@@ -593,10 +593,6 @@ export default function MomPage() {
           </Container>
         </div>
       </div>
-      {openCheckout && (
-        <Checkout setOpenCheckout={setOpenCheckout} setOpenForm={setOpenForm} />
-      )}
-      {openForm && <AddressForm setOpenForm={setOpenForm} />}
     </div>
   );
 }

@@ -125,7 +125,7 @@ const AdminProductIndividual: React.FC = () => {
           </p>
         </div>
         <div className="my-10 flex">
-          <div className="flex flex-col">
+          <div className="flex flex-col w-50">
             <label className="mb-1.5 block text-sm font-semibold text-zinc-900">
               Upload Image
             </label>
