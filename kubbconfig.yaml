@@ -158,8 +158,32 @@ paths:
         "403":
           description: Forbidden (not allowed)
 
-  #Get upload URL for post draft media
+  #Edit tax and pricing data 
+  /admin/config:
+    post:
+      tags:
+      - Config
+      operationId: postConfig
+      summary: Set checkout pricing configuration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CheckoutPricingDTO"
+      responses:
+        "200":
+          description: Updated checkout pricing configuration
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckoutPricingDTO"
+        "400":
+          description: Invalid request body
+        "401":
+          description: Unauthorized
 
+  #Get upload URL for post draft medi
   /admin/products/{productId}/media:
     post:
       summary: Generate pre-signed URL for post draft media upload
@@ -877,3 +901,16 @@ components:
       enum:
       - SHIPPING
       - BILLING
+
+    CheckoutPricingDTO:
+      type: object
+      required:
+      - shipping
+      - tax
+      properties:
+        shipping:
+          type: number
+          format: double
+        tax:
+          type: number
+          format: double

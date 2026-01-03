@@ -15,6 +15,7 @@ import Details from "./pages/checkout/Details";
 import PaymentPage from "./pages/checkout/PaymentPage";
 import OrderSuccess from "./pages/OrderSuccess";
 import OrderIndividual from "./pages/admin/orders/OrderIndividual";
+import Config from "./pages/admin/config/Config";
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
                   path={"/admin/products/:productId"}
                   element={<AdminProductsIndividual />}
                 />
+                <Route path="/admin/config" element={<Config />} />
                 <Route path="/admin/customers" element={<AdminCustomers />} />
                 <Route
                   path="/admin/customer/:customerId"

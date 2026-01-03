@@ -24,6 +24,12 @@ const Header = () => {
         >
           Products
         </div>
+        <div
+          className="cursor-pointer"
+          onClick={() => navigate("/admin/config")}
+        >
+          Config
+        </div>
       </div>
     </div>
   );
