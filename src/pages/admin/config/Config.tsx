@@ -23,7 +23,7 @@ const Config = () => {
       {
         onSuccess: () => alert("Configuration updated"),
         onError: () => alert("Failed to update configuration"),
-      }
+      },
     );
   };
 

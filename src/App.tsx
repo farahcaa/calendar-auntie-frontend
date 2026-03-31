@@ -1,6 +1,5 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 
-import { AnalyticsProvider } from "./components/analytics/AnalyticsProvider";
 import MomPage from "./pages/MomPage/MomPage";
 import ProtectedRoute from "./components/route/ProtectedRoute";
 
@@ -16,43 +15,57 @@ import PaymentPage from "./pages/checkout/PaymentPage";
 import OrderSuccess from "./pages/OrderSuccess";
 import OrderIndividual from "./pages/admin/orders/OrderIndividual";
 import Config from "./pages/admin/config/Config";
+import Blog from "./pages/admin/blog/Blog";
+import CreateCategory from "./pages/admin/blog/CreateCategory";
+import BlogPost from "./pages/admin/blog/BlogPost";
+import CreateBlogPost from "./pages/admin/blog/CreateBlogPost";
+import BlogList from "./pages/admin/blog/BlogList";
 
 function App() {
   return (
     // Default font is Inter
     <div className="font-['Inter']">
       <BrowserRouter>
-        <AnalyticsProvider>
-          <Routes>
-            <Route path="/" element={<MomPage />} />
-            <Route path="/success" element={<OrderSuccess />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/details" element={<Details />} />
-            <Route path="/pay" element={<PaymentPage />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route element={<ProtectedRoute />}>
-              <Route element={<Layout />}>
-                <Route path="/admin/products" element={<AdminProducts />} />
-                <Route
-                  path={"/admin/products/:productId"}
-                  element={<AdminProductsIndividual />}
-                />
-                <Route path="/admin/config" element={<Config />} />
-                <Route path="/admin/customers" element={<AdminCustomers />} />
-                <Route
-                  path="/admin/customer/:customerId"
-                  element={<AdminCustomers />}
-                />
-                <Route path="/admin/orders" element={<AdminOrders />} />
-                <Route
-                  path="/admin/orders/:orderId"
-                  element={<OrderIndividual />}
-                />
-              </Route>
+        <Routes>
+          <Route path="/" element={<MomPage />} />
+          <Route path="/success" element={<OrderSuccess />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/details" element={<Details />} />
+          <Route path="/pay" element={<PaymentPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route element={<ProtectedRoute />}>
+            <Route element={<Layout />}>
+              <Route path="/admin/blog" element={<Blog />} />
+              <Route
+                path="/admin/blog-create-category"
+                element={<CreateCategory />}
+              />
+              <Route
+                path="/admin/blog-create-post"
+                element={<CreateBlogPost />}
+              />
+              <Route path="/admin/blog/:CategoryId" element={<BlogList />} />
+              <Route path="/admin/blog/post/:id" element={<BlogPost />} />
+              <Route path="/admin/products" element={<AdminProducts />} />
+              <Route
+                path={"/admin/products/:productId"}
+                element={<AdminProductsIndividual />}
+              />
+              <Route path="/admin/config" element={<Config />} />
+              <Route path="/admin/customers" element={<AdminCustomers />} />
+              <Route
+                path="/admin/customer/:customerId"
+                element={<AdminCustomers />}
+              />
+              <Route path="/admin/orders" element={<AdminOrders />} />
+              <Route
+                path="/admin/orders/:orderId"
+                element={<OrderIndividual />}
+              />
             </Route>
-          </Routes>
-        </AnalyticsProvider>
+          </Route>
+        </Routes>
       </BrowserRouter>
     </div>
   );

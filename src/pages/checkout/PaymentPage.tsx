@@ -2,11 +2,10 @@ import { useLocation, useNavigate } from "react-router";
 import { XCircle } from "lucide-react";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
-import Pay from "./Pay";
 import PaymentContent from "./PaymentContent";
 
 const stripePromise = loadStripe(
-  import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || ""
+  import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || "",
 );
 
 const PaymentPage = () => {
