@@ -4,7 +4,8 @@ import useAuthenticatedClientConfig from "@/hooks/use-authenticated-client-confi
 
 const Config = () => {
   const config = useAuthenticatedClientConfig();
-  const { mutate, isLoading } = usePostConfig(config);
+  const { data: _data, ...clientConfig } = config;
+  const { mutate, isPending } = usePostConfig({ client: clientConfig });
   const { data } = useGetCheckoutPricing();
   const [shipping, setShipping] = useState("");
   const [tax, setTax] = useState("");
@@ -64,10 +65,10 @@ const Config = () => {
 
       <button
         onClick={submit}
-        disabled={isLoading}
+        disabled={isPending}
         className="w-full rounded-lg bg-black text-white py-2 text-sm font-medium disabled:opacity-50"
       >
-        {isLoading ? "Saving..." : "Save"}
+        {isPending ? "Saving..." : "Save"}
       </button>
     </div>
   );

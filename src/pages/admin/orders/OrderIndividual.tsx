@@ -14,13 +14,13 @@ const OrderIndividual = () => {
 
   const { data, isLoading, isError, error } = useGetAdminOrderById(
     orderId || "",
-    config
+    { client: config },
   );
-  const { mutateAsync: fulfill } = useFulfillAdminOrder(config);
+  const { mutateAsync: fulfill } = useFulfillAdminOrder({ client: config });
 
   const handleFulfil = async () => {
     const confirmed = window.confirm(
-      "Are you sure you want to mark this order as fulfilled? This action cannot be undone."
+      "Are you sure you want to mark this order as fulfilled? This action cannot be undone.",
     );
 
     if (confirmed) {

@@ -1,4 +1,4 @@
-import { createBlogCategory } from "@/gen";
+import { createBlogCategory, useCreateBlogCategory } from "@/gen";
 import useAuthenticatedClientConfig from "@/hooks/use-authenticated-client-config";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router";
@@ -27,7 +27,6 @@ const CreateCategory = () => {
     slug: "",
     description: "",
   });
-
   const [slugTouched, setSlugTouched] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);

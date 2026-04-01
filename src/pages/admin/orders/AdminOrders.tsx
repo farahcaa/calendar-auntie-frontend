@@ -8,12 +8,12 @@ const AdminOrders = () => {
 
   // All orders
   const { data: ordersResponse, isLoading: isLoadingOrders } =
-    useGetAdminOrders({ page: 0 }, config);
+    useGetAdminOrders({ page: 0 }, { client: config });
 
   console.log(ordersResponse);
   // Orders that need to be processed / paid
   const { data: paidResponse, isLoading: isLoadingPaid } =
-    useGetAdminOrdersPaid({ page: 0 }, config);
+    useGetAdminOrdersPaid({ page: 0 }, { client: config });
 
   console.log(paidResponse);
   const orders = ordersResponse?.data ?? [];
