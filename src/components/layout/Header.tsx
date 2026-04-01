@@ -30,6 +30,9 @@ const Header = () => {
         >
           Config
         </div>
+        <div className="cursor-pointer" onClick={() => navigate("/admin/blog")}>
+          Blog
+        </div>
       </div>
     </div>
   );

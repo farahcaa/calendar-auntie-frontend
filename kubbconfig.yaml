@@ -97,6 +97,8 @@ paths:
   # Create product
   /admin/products:
     post:
+      security:
+      - bearerAuth: []
       summary: create product
       description: used to create a post
       responses:
@@ -112,6 +114,8 @@ paths:
 
     # Get all products
     get:
+      security:
+      - bearerAuth: []
       operationId: getAdminProducts
       summary: Get admin products (paged)
       tags:
@@ -161,6 +165,8 @@ paths:
   #Edit tax and pricing data 
   /admin/config:
     post:
+      security:
+      - bearerAuth: []
       tags:
       - Config
       operationId: postConfig
@@ -185,6 +191,8 @@ paths:
 
   #Get upload URL for post draft medi
   /admin/products/{productId}/media:
+    security:
+    - bearerAuth: []
     post:
       summary: Generate pre-signed URL for post draft media upload
       tags:
@@ -211,6 +219,8 @@ paths:
 
   /admin/products/{productId}/media/{mediaId}:
     put:
+      security:
+      - bearerAuth: []
       summary: Confirm uploaded media for post draft
       tags:
       - Media
@@ -238,6 +248,8 @@ paths:
 
   /admin/products/{productId}/media/delete/{mediaId}:
     delete:
+      security:
+      - bearerAuth: []
       summary: Delete media from post draft
       tags:
       - Media
@@ -264,6 +276,8 @@ paths:
 
   /admin/products/{productId}:
     get:
+      security:
+      - bearerAuth: []
       summary: Get media for a product
       tags:
       - Media
@@ -288,6 +302,8 @@ paths:
         "404":
           description: Product not found
     put:
+      security:
+      - bearerAuth: []
       summary: update product
       parameters:
       - name: productId
@@ -307,6 +323,8 @@ paths:
           description: Successfully updated product
 
     delete:
+      security:
+      - bearerAuth: []
       summary: delete product
       parameters:
       - name: productId
@@ -321,6 +339,8 @@ paths:
 
   /admin/orders:
     get:
+      security:
+      - bearerAuth: []
       operationId: getAdminOrders
       summary: Get admin orders (paged)
       tags:
@@ -369,6 +389,8 @@ paths:
 
   /admin/orders/paid:
     get:
+      security:
+      - bearerAuth: []
       operationId: getAdminOrdersPaid
       summary: Get admin orders (paged)
       tags:
@@ -417,6 +439,8 @@ paths:
 
   /admin/orders/{orderId}:
     get:
+      security:
+      - bearerAuth: []
       tags:
       - AdminOrders
       operationId: getAdminOrderById
@@ -442,6 +466,8 @@ paths:
 
   /admin/orders/{orderId}/fulfill:
     post:
+      security:
+      - bearerAuth: []
       tags:
       - AdminOrders
       operationId: fulfillAdminOrder
@@ -461,8 +487,206 @@ paths:
         "401":
           description: Unauthorized
 
-components:
+  /blog/categories:
+    get:
+      tags:
+      - Blog
+      summary: Get blog categories
+      operationId: getBlogCategories
+      responses:
+        '200':
+          description: Blog categories fetched successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BlogCategoryDTO'
 
+  /blog/categories/{id}:
+    get:
+      tags:
+      - Blog
+      summary: Get blog category by id
+      operationId: getBlogCategoryById
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: Category id
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Blog category fetched successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlogCategoryDTO'
+  /blog/categories/{id}/posts:
+    get:
+      tags:
+      - Blog
+      summary: Get blog posts by category id
+      operationId: getBlogsByCategoryId
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: Category id
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Blog posts fetched successfully for the category
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BlogPostDTO'
+
+  /blog/post/{id}:
+    get:
+      tags:
+      - Blog
+      summary: Get blog post by id
+      operationId: getBlogPostById
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: Blog post id
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Blog post fetched successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlogPostDTO'
+  /blog/posts/recent:
+    get:
+      tags:
+      - Blog
+      summary: Get recent blog posts
+      operationId: getRecentBlogPosts
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        description: Maximum number of recent posts to return (default is 5)
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 20
+          default: 5
+      responses:
+        '200':
+          description: Recent blog posts fetched successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BlogPostDTO'
+  /admin/blog:
+    post:
+      security:
+      - bearerAuth: []
+      tags:
+      - Admin Blog
+      summary: Create blog category
+      operationId: createBlogCategory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBlogCategoryRequest'
+      responses:
+        '200':
+          description: Blog category created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlogCategoryDTO'
+
+    delete:
+      security:
+      - bearerAuth: []
+      tags:
+      - Admin Blog
+      summary: Delete blog category
+      operationId: deleteBlogCategory
+      parameters:
+      - name: id
+        in: query
+        required: true
+        description: Category id to delete
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Blog category deleted successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: success
+
+  /admin/blog/post:
+    post:
+      security:
+      - bearerAuth: []
+      tags:
+      - Admin Blog
+      summary: Create blog post
+      operationId: createBlogPost
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBlogPostRequest'
+      responses:
+        '200':
+          description: Blog post created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlogPostDTO'
+
+    delete:
+      security:
+      - bearerAuth: []
+      tags:
+      - Admin Blog
+      summary: Delete blog post
+      operationId: deleteBlogPost
+      parameters:
+      - name: id
+        in: query
+        required: true
+        description: Blog post id to delete
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Blog post deleted successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: success
+
+components:
   # Security Schemes
   securitySchemes:
     bearerAuth:
@@ -914,3 +1138,96 @@ components:
         tax:
           type: number
           format: double
+    # Public category DTO
+    BlogCategoryDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    # Public post DTO
+    BlogPostDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        categoryId:
+          type: string
+          format: uuid
+        categoryName:
+          type: string
+        categorySlug:
+          type: string
+        title:
+          type: string
+        slug:
+          type: string
+        excerpt:
+          type: string
+          nullable: true
+        bodyMarkdown:
+          type: string
+        published:
+          type: boolean
+        publishedAt:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    # Placeholder create-category request
+    # Fill these out as you finalize your backend contract
+    CreateBlogCategoryRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+          nullable: true
+
+    # Placeholder create-post request
+    # Fill these out as you finalize your backend contract
+    CreateBlogPostRequest:
+      type: object
+      properties:
+        categoryId:
+          type: string
+          format: uuid
+        title:
+          type: string
+        slug:
+          type: string
+        excerpt:
+          type: string
+          nullable: true
+        bodyMarkdown:
+          type: string
+        published:
+          type: boolean
+        publishedAt:
+          type: string
+          format: date-time
+          nullable: true
