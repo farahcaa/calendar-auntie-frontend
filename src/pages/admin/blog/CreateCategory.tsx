@@ -1,19 +1,13 @@
+import { createBlogCategory } from "@/gen";
+import useAuthenticatedClientConfig from "@/hooks/use-authenticated-client-config";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router";
+import axios from "axios";
 
 type CreateBlogCategoryRequest = {
   name: string;
   slug: string;
   description?: string | null;
-};
-
-type BlogCategoryDto = {
-  id: string;
-  name: string;
-  slug: string;
-  description?: string | null;
-  createdAt: string;
-  updatedAt: string;
 };
 
 const slugify = (value: string): string => {
@@ -27,7 +21,7 @@ const slugify = (value: string): string => {
 
 const CreateCategory = () => {
   const navigate = useNavigate();
-
+  const config = useAuthenticatedClientConfig();
   const [form, setForm] = useState<CreateBlogCategoryRequest>({
     name: "",
     slug: "",
@@ -87,22 +81,35 @@ const CreateCategory = () => {
     try {
       setIsSubmitting(true);
 
-      const response = await fetch("/api/blog/categories", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+      const response = await createBlogCategory(payload, { ...config });
 
-      if (!response.ok) {
+      if (response.status == 409) {
+        throw new Error(
+          "Conflict: A category with the same slug already exists.",
+        );
+      } else if (response.status != 200) {
         throw new Error("Failed to create blog category.");
       }
 
-      const created: BlogCategoryDto = await response.json();
-      navigate(`/admin/blog/${created.id}`);
+      navigate(`/admin/blog`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
+      console.log("Error creating category:", err);
+
+      if (axios.isAxiosError(err)) {
+        const status = err.response?.status;
+
+        if (status === 409) {
+          setError(
+            `A category with the slug "${payload.slug}" already exists. Please choose a different slug.`,
+          );
+        } else {
+          setError(
+            `Failed to create category. Server responded with status ${status ?? "unknown"}.`,
+          );
+        }
+      } else {
+        setError("An unexpected error occurred.");
+      }
     } finally {
       setIsSubmitting(false);
     }

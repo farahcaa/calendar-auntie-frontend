@@ -5,8 +5,8 @@ import { useNavigate } from "react-router";
 const AdminProducts = () => {
   const navigate = useNavigate();
   const config = useAuthenticatedClientConfig();
-  const { mutateAsync } = usePostAdminProducts(config);
-  const { data } = useGetAdminProducts({ page: 0 }, config);
+  const { mutateAsync } = usePostAdminProducts({ client: config });
+  const { data } = useGetAdminProducts({ page: 0 }, { client: config });
 
   const handleCreatePost = async () => {
     const data = await mutateAsync();

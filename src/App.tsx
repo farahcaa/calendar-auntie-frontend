@@ -20,6 +20,9 @@ import CreateCategory from "./pages/admin/blog/CreateCategory";
 import BlogPost from "./pages/admin/blog/BlogPost";
 import CreateBlogPost from "./pages/admin/blog/CreateBlogPost";
 import BlogList from "./pages/admin/blog/BlogList";
+import BlogCategories from "./pages/MomPage/BlogCategories";
+import BlogPosts from "./pages/MomPage/BlogPosts";
+import BlogPage from "./pages/MomPage/BlogPage";
 
 function App() {
   return (
@@ -32,6 +35,9 @@ function App() {
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/details" element={<Details />} />
           <Route path="/pay" element={<PaymentPage />} />
+          <Route path="/blog" element={<BlogCategories />} />
+          <Route path="/blog/:categoryId" element={<BlogPosts />} />
+          <Route path="/blog/:categoryId/:postId" element={<BlogPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route element={<ProtectedRoute />}>
@@ -42,7 +48,7 @@ function App() {
                 element={<CreateCategory />}
               />
               <Route
-                path="/admin/blog-create-post"
+                path="/admin/blog-create-post/:categoryId"
                 element={<CreateBlogPost />}
               />
               <Route path="/admin/blog/:CategoryId" element={<BlogList />} />

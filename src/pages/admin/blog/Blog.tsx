@@ -1,50 +1,10 @@
-import { useMemo } from "react";
+import { useGetBlogCategories } from "@/gen";
 import { useNavigate } from "react-router";
-
-type BlogCategoryDto = {
-  id: string;
-  name: string;
-  slug: string;
-  description?: string | null;
-};
-
-const fakeCategories: BlogCategoryDto[] = [
-  {
-    id: "9f8f8f8a-1111-4b2d-9c11-111111111111",
-    name: "Apartment Tips",
-    slug: "apartment-tips",
-    description: "Advice for finding, managing, and enjoying apartments.",
-  },
-  {
-    id: "9f8f8f8a-2222-4b2d-9c11-222222222222",
-    name: "Student Housing",
-    slug: "student-housing",
-    description: "Content focused on leases, roommates, and student living.",
-  },
-  {
-    id: "9f8f8f8a-3333-4b2d-9c11-333333333333",
-    name: "Moving Guides",
-    slug: "moving-guides",
-    description: "Packing, moving, setup, and move-in checklists.",
-  },
-  {
-    id: "9f8f8f8a-4444-4b2d-9c11-444444444444",
-    name: "Roommate Advice",
-    slug: "roommate-advice",
-    description: "Choosing roommates and keeping the peace.",
-  },
-];
 
 const Blog = () => {
   const navigate = useNavigate();
 
-  // Replace this later with:
-  // const { data: categories, isLoading } = useGetBlogCategories();
-  const isLoading = false;
-
-  const categories = useMemo<BlogCategoryDto[]>(() => {
-    return fakeCategories;
-  }, []);
+  const { data: categories, isLoading } = useGetBlogCategories();
 
   return (
     <div className="min-h-screen bg-zinc-50 px-6 py-10">
@@ -83,7 +43,7 @@ const Blog = () => {
               </div>
             ))}
           </div>
-        ) : categories.length === 0 ? (
+        ) : categories && categories.data.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-zinc-300 bg-white p-10 text-center shadow-sm">
             <h2 className="text-lg font-semibold text-zinc-900">
               No categories yet
@@ -92,7 +52,7 @@ const Blog = () => {
               Create your first blog category to get started.
             </p>
             <button
-              onClick={() => navigate("/admin/blog-category-create")}
+              onClick={() => navigate("/admin/blog-create-category")}
               className="mt-5 inline-flex items-center justify-center rounded-xl bg-zinc-900 px-5 py-3 text-sm font-medium text-white transition hover:bg-zinc-800"
             >
               Create Category
@@ -100,7 +60,7 @@ const Blog = () => {
           </div>
         ) : (
           <div className="grid gap-4">
-            {categories.map((category) => (
+            {categories?.data.map((category) => (
               <button
                 key={category.id}
                 onClick={() => navigate(`/admin/blog/${category.id}`)}

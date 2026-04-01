@@ -1,18 +1,14 @@
-export type UseAuthenticatedClientConfig = {
-  client: {
-    headers: {
-      Authorization: string;
-    };
-  };
+import type { RequestConfig } from "@/lib/client";
+
+export type UseAuthenticatedClientConfig = Partial<RequestConfig> & {
+  client?: typeof import("@/lib/client").default;
 };
 
 const useAuthenticatedClientConfig = (): UseAuthenticatedClientConfig => {
   const auth = localStorage.getItem("auth");
   return {
-    client: {
-      headers: {
-        Authorization: auth ? `Bearer ${auth}` : "",
-      },
+    headers: {
+      Authorization: auth ? `Bearer ${auth}` : "",
     },
   };
 };

@@ -1,10 +1,11 @@
 import { motion } from "framer-motion";
-import { ShoppingCart, ChevronDown, X, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { GetProducts200, useGetProducts } from "@/gen";
-import { useState } from "react";
+import { ProductDTO, useGetProducts, useGetRecentBlogPosts } from "@/gen";
 import { useNavigate } from "react-router";
+import PageHeader from "@/components/layout/PageHeader";
+import { useState } from "react";
+import ProductPopUp from "./ProductPopUp";
 
 const PALETTE = {
   bg: "#FAF7F2", // warm cream
@@ -16,8 +17,11 @@ const PALETTE = {
 export default function MomPage() {
   const { data } = useGetProducts();
   const navigate = useNavigate();
-
-  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const { data: blogPosts, isError: isBlogPostsError } =
+    useGetRecentBlogPosts();
+  const [selectedProduct, setSelectedProduct] = useState<ProductDTO | null>(
+    null,
+  );
   const tips = [
     {
       t: "Photo picking",
@@ -25,21 +29,6 @@ export default function MomPage() {
     },
     { t: "Cropping", b: "Leave ~0.25 in safe margin—spirals & trims." },
     { t: "Delivery", b: "PNG/JPEG 300DPI." },
-  ];
-
-  const posts = [
-    {
-      title: "Building a clean collage layout",
-      date: "Oct 2025",
-      excerpt:
-        "My go-to is a 3×3 or 4×3 grid with generous gutters and calm margins…",
-    },
-    {
-      title: "Fonts that pair with Black Mango",
-      date: "Sep 2025",
-      excerpt:
-        "A refined serif for headlines, a modern sans for body—timeless and readable.",
-    },
   ];
 
   const handleAddCartItem = (id: string) => {
@@ -78,232 +67,12 @@ export default function MomPage() {
     </div>
   );
 
-  // NOTE: You have an API-model mismatch in your original snippet:
-  // - You call <ProductCard data={p} /> but your ProductCard signature is function ProductCard(data: GetProducts200)
-  // This version just renders inline and assumes the backend returns:
-  // data.data.content: Array<{ thumbnail, title, description, price, id? }>
-  // Adjust fields as needed.
-
   return (
     <div
       className="min-h-screen bg-white text-[15px]"
       style={{ color: PALETTE.text }}
     >
-      {/* TopBar */}
-      <div
-        className="sticky top-0 bg-white/90 z-50 w-full border-b backdrop-blur"
-        style={{ borderColor: PALETTE.line }}
-      >
-        <Container className="py-3 flex items-center justify-between">
-          {/* Left: desktop nav / mobile hamburger */}
-          <div className="flex items-center gap-6 text-sm">
-            {/* Mobile: hamburger */}
-            <button
-              className="flex items-center justify-center md:hidden rounded-full border px-2 py-1 text-xs hover:bg-neutral-50"
-              onClick={() => setMobileNavOpen((prev) => !prev)}
-              aria-label="Toggle navigation"
-            >
-              {mobileNavOpen ? (
-                <X className="w-4 h-4" />
-              ) : (
-                <Menu className="w-4 h-4" />
-              )}
-            </button>
-
-            {/* Desktop nav */}
-            <div className="hidden md:flex items-center gap-6">
-              <a className="hover:opacity-70" href="#shop">
-                Shop
-              </a>
-
-              <div className="group relative">
-                <button className="inline-flex items-center gap-1 hover:opacity-70">
-                  Collections <ChevronDown className="w-4 h-4" />
-                </button>
-
-                <div
-                  className="invisible group-hover:visible opacity-0 group-hover:opacity-100 transition absolute left-0 mt-3 bg-white shadow-xl border rounded-xl p-6 grid grid-cols-2 gap-6 min-w-[520px]"
-                  style={{ borderColor: PALETTE.line }}
-                >
-                  <div>
-                    <p className="uppercase tracking-wide text-xs text-neutral-500 mb-2">
-                      Calendars
-                    </p>
-                    <ul className="space-y-1 text-sm">
-                      <li>
-                        <a href="#shop" className="hover:underline">
-                          Family Collage
-                        </a>
-                      </li>
-                      <li>
-                        <a href="#shop" className="hover:underline">
-                          Mantra Series
-                        </a>
-                      </li>
-                      <li>
-                        <a href="#shop" className="hover:underline">
-                          Custom Dates
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
-
-                  <div>
-                    <p className="uppercase tracking-wide text-xs text-neutral-500 mb-2">
-                      Art Prints
-                    </p>
-                    <ul className="space-y-1 text-sm">
-                      <li>
-                        <a href="#shop" className="hover:underline">
-                          Coffee Quotes
-                        </a>
-                      </li>
-                      <li>
-                        <a href="#shop" className="hover:underline">
-                          Nature
-                        </a>
-                      </li>
-                      <li>
-                        <a href="#shop" className="hover:underline">
-                          Minimal
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-
-              <a className="hover:opacity-70" href="#tips">
-                Tips
-              </a>
-              <a className="hover:opacity-70" href="#blog">
-                Journal
-              </a>
-            </div>
-          </div>
-
-          {/* Center: brand (slightly smaller on mobile) */}
-          <div className="text-sm md:text-xl tracking-[0.18em] text-center flex-1 md:flex-none">
-            JEANNE CALENDARS
-          </div>
-
-          {/* Right: contact + cart */}
-          <div className="flex items-center gap-3 text-sm justify-end">
-            <a
-              className="hover:opacity-70 hidden sm:inline"
-              href="mailto:hello@example.com"
-            >
-              Contact
-            </a>
-            <button
-              className="inline-flex items-center gap-1 sm:gap-2 hover:opacity-70 rounded-full border px-2 py-1 text-xs sm:text-sm"
-              onClick={() => navigate("/checkout")}
-            >
-              <ShoppingCart className="w-4 h-4" />
-              <span className="hidden xs:inline">Cart</span>
-            </button>
-          </div>
-        </Container>
-
-        {/* Mobile nav dropdown */}
-        {mobileNavOpen && (
-          <div
-            className="md:hidden border-t"
-            style={{ borderColor: PALETTE.line }}
-          >
-            <Container className="py-3 space-y-3 text-sm">
-              <a
-                href="#shop"
-                className="block hover:opacity-80"
-                onClick={() => setMobileNavOpen(false)}
-              >
-                Shop
-              </a>
-
-              <details className="group">
-                <summary className="flex items-center justify-between cursor-pointer hover:opacity-80">
-                  <span>Collections</span>
-                  <ChevronDown className="w-4 h-4" />
-                </summary>
-                <div className="mt-2 pl-3 space-y-1 text-xs text-neutral-700">
-                  <div className="uppercase tracking-wide text-[10px] text-neutral-500">
-                    Calendars
-                  </div>
-                  <a
-                    href="#shop"
-                    className="block hover:underline"
-                    onClick={() => setMobileNavOpen(false)}
-                  >
-                    Family Collage
-                  </a>
-                  <a
-                    href="#shop"
-                    className="block hover:underline"
-                    onClick={() => setMobileNavOpen(false)}
-                  >
-                    Mantra Series
-                  </a>
-                  <a
-                    href="#shop"
-                    className="block hover:underline"
-                    onClick={() => setMobileNavOpen(false)}
-                  >
-                    Custom Dates
-                  </a>
-
-                  <div className="mt-3 uppercase tracking-wide text-[10px] text-neutral-500">
-                    Art Prints
-                  </div>
-                  <a
-                    href="#shop"
-                    className="block hover:underline"
-                    onClick={() => setMobileNavOpen(false)}
-                  >
-                    Coffee Quotes
-                  </a>
-                  <a
-                    href="#shop"
-                    className="block hover:underline"
-                    onClick={() => setMobileNavOpen(false)}
-                  >
-                    Nature
-                  </a>
-                  <a
-                    href="#shop"
-                    className="block hover:underline"
-                    onClick={() => setMobileNavOpen(false)}
-                  >
-                    Minimal
-                  </a>
-                </div>
-              </details>
-
-              <a
-                href="#tips"
-                className="block hover:opacity-80"
-                onClick={() => setMobileNavOpen(false)}
-              >
-                Tips
-              </a>
-              <a
-                href="#blog"
-                className="block hover:opacity-80"
-                onClick={() => setMobileNavOpen(false)}
-              >
-                Journal
-              </a>
-              <a
-                href="mailto:hello@example.com"
-                className="block hover:opacity-80"
-                onClick={() => setMobileNavOpen(false)}
-              >
-                Contact
-              </a>
-            </Container>
-          </div>
-        )}
-      </div>
-
+      <PageHeader />
       {/* Hero */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0" aria-hidden>
@@ -371,20 +140,28 @@ export default function MomPage() {
         </div>
 
         <div className="grid md:grid-cols-3 gap-8 mt-8">
-          {data?.data.content?.map((p: GetProducts200) => {
+          {data?.data.content?.map((p: ProductDTO) => {
             // adjust these paths to match your generated types
             const thumbnail =
-              (p as any)?.thumbnail ?? (p as any)?.data?.thumbnail;
-            const title = (p as any)?.title ?? (p as any)?.data?.title;
+              (p as ProductDTO)?.thumbnail ??
+              (p as ProductDTO)?.data?.thumbnail;
+            const title =
+              (p as ProductDTO)?.title ?? (p as ProductDTO)?.data?.title;
             const description =
-              (p as any)?.description ?? (p as any)?.data?.description;
-            const price = (p as any)?.price ?? (p as any)?.data?.price;
-            const id = (p as any)?.id ?? (p as any)?.data?.id;
-            console.log(p);
+              (p as ProductDTO)?.description ??
+              (p as ProductDTO)?.data?.description;
+            const price =
+              (p as ProductDTO)?.price ?? (p as ProductDTO)?.data?.price;
+            const id = (p as ProductDTO)?.id ?? (p as ProductDTO)?.data?.id;
+
             return (
               <div
-                key={(p as any)?.id ?? title ?? Math.random()}
+                key={(p as ProductDTO)?.id ?? title ?? Math.random()}
                 className="group border rounded-sm overflow-hidden"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedProduct(p);
+                }}
               >
                 <div className="overflow-hidden">
                   <img
@@ -410,7 +187,8 @@ export default function MomPage() {
                   <div className="mt-4 flex gap-2">
                     <Button
                       className="rounded-none text-sm"
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         handleAddCartItem(id);
                       }}
                     >
@@ -422,6 +200,13 @@ export default function MomPage() {
             );
           })}
         </div>
+        {selectedProduct && (
+          <ProductPopUp
+            product={selectedProduct}
+            removeSelectedProduct={() => setSelectedProduct(null)}
+            addToCart={(id) => handleAddCartItem(id)}
+          />
+        )}
       </Container>
 
       {/* SplitBanner */}
@@ -514,25 +299,53 @@ export default function MomPage() {
         </div>
       </Container>
 
-      {/* Journal */}
+      {/* Blog */}
       <Container id="blog" className="py-16">
-        <h2 className="font-serif text-4xl tracking-tight mb-6">Journal</h2>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="font-serif text-4xl tracking-tight">Blog</h2>
+
+          <button
+            onClick={() => navigate("/blog")}
+            className="text-sm underline hover:opacity-70"
+            style={{ color: PALETTE.subtle }}
+          >
+            View all →
+          </button>
+        </div>
+
         <div className="grid md:grid-cols-2 gap-6">
-          {posts.map((p, i) => (
+          {blogPosts?.data.map((p) => (
             <div
-              key={i}
-              className="border p-6"
+              key={p.id}
+              onClick={() => navigate(`/blog/${p.categoryId}/${p.id}`)}
+              className="border p-6 cursor-pointer hover:shadow-sm transition"
               style={{ borderColor: PALETTE.line }}
             >
               <div className="text-xs" style={{ color: PALETTE.subtle }}>
-                {p.date}
+                {new Date(p.createdAt).toLocaleDateString(undefined, {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                })}
               </div>
+
               <div className="font-semibold mt-1">{p.title}</div>
+
               <p className="text-sm mt-2" style={{ color: PALETTE.subtle }}>
                 {p.excerpt}
               </p>
             </div>
           ))}
+          {blogPosts?.data.length === 0 && (
+            <div className="text-sm" style={{ color: PALETTE.subtle }}>
+              No blog posts yet. Check back soon!
+            </div>
+          )}
+          {isBlogPostsError && (
+            <div className="text-sm" style={{ color: PALETTE.subtle }}>
+              Failed to load blog posts.
+            </div>
+          )}
         </div>
       </Container>
 

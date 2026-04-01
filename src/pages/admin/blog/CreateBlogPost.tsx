@@ -1,3 +1,5 @@
+import { createBlogPost } from "@/gen";
+import useAuthenticatedClientConfig from "@/hooks/use-authenticated-client-config";
 import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 
@@ -7,18 +9,6 @@ type CreateBlogPostRequest = {
   slug: string;
   excerpt?: string | null;
   bodyMarkdown: string;
-  published: boolean;
-};
-
-type BlogPostDto = {
-  id: string;
-  categoryId: string;
-  title: string;
-  slug: string;
-  excerpt?: string | null;
-  bodyMarkdown: string;
-  published: boolean;
-  publishedAt?: string | null;
 };
 
 const slugify = (value: string): string => {
@@ -33,7 +23,7 @@ const slugify = (value: string): string => {
 const CreateBlogPost = () => {
   const navigate = useNavigate();
   const { categoryId } = useParams();
-
+  const config = useAuthenticatedClientConfig();
   const [form, setForm] = useState<CreateBlogPostRequest>({
     categoryId: categoryId ?? "",
     title: "",
@@ -43,7 +33,6 @@ const CreateBlogPost = () => {
 
 Write your content here.
 `,
-    published: false,
   });
 
   const [slugTouched, setSlugTouched] = useState(false);
@@ -79,7 +68,6 @@ Write your content here.
       slug: effectiveSlug.trim(),
       excerpt: form.excerpt?.trim() ? form.excerpt.trim() : null,
       bodyMarkdown: form.bodyMarkdown.trim(),
-      published: form.published,
     };
 
     if (!payload.categoryId) {
@@ -105,21 +93,9 @@ Write your content here.
     try {
       setIsSubmitting(true);
 
-      // Replace later with your mutation hook
-      // const created = await createBlogPostMutation.mutateAsync({ data: payload });
+      await createBlogPost(payload, { ...config });
 
-      const created: BlogPostDto = {
-        id: "new-fake-id-123",
-        categoryId: payload.categoryId,
-        title: payload.title,
-        slug: payload.slug,
-        excerpt: payload.excerpt,
-        bodyMarkdown: payload.bodyMarkdown,
-        published: payload.published,
-        publishedAt: payload.published ? new Date().toISOString() : null,
-      };
-
-      navigate(`/admin/blog/post/${created.id}`);
+      navigate(`/admin/blog/${categoryId}`);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to create blog post.",
@@ -217,20 +193,6 @@ Write your content here.
                 className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 font-mono text-sm text-zinc-900 outline-none transition focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200"
               />
             </div>
-
-            <label className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3">
-              <input
-                type="checkbox"
-                checked={form.published}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, published: e.target.checked }))
-                }
-                className="h-4 w-4 rounded border-zinc-300"
-              />
-              <span className="text-sm font-medium text-zinc-800">
-                Publish immediately
-              </span>
-            </label>
 
             {error && (
               <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">

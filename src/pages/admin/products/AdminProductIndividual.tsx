@@ -11,24 +11,23 @@ import { useNavigate, useParams } from "react-router";
 
 const AdminProductIndividual: React.FC = () => {
   const config = useAuthenticatedClientConfig();
+  const { data: _data, ...clientConfig } = config;
   const navigate = useNavigate();
   const { productId } = useParams();
 
   const { mutateAsync: deleteProduct, isPending: isPendingUpdate } =
     useDeleteAdminProductsProductid({
-      ...config,
+      client: config,
     });
 
   const { mutateAsync: updateProduct, isPending: isPendingDelete } =
-    usePutAdminProductsProductid({
-      ...config,
-    });
+    usePutAdminProductsProductid({ client: clientConfig });
   const { data } = useGetAdminProductsProductid(productId || "", {
-    ...config,
+    client: config,
   });
 
   const { mutateAsync } = useDeleteAdminProductsProductidMediaDeleteMediaid({
-    ...config,
+    client: config,
   });
 
   const [form, setForm] = useState({
