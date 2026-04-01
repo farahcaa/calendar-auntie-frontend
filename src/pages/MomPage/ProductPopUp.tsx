@@ -36,11 +36,11 @@ const ProductPopUp = ({
         </button>
 
         <div className="grid md:grid-cols-2">
-          <div className="bg-gray-100">
+          <div className="bg-gray-100 flex items-center justify-center">
             <img
               src={`${import.meta.env.VITE_MEDIA_BASE_URL}/${thumbnail}`}
               alt={title ?? "Product image"}
-              className="h-[350px] w-full object-cover md:h-[650px]"
+              className=" w-full object-cover  max-h-[500px] "
             />
           </div>
 

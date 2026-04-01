@@ -189,11 +189,11 @@ paths:
         "401":
           description: Unauthorized
 
-  #Get upload URL for post draft medi
+  #Get upload URL for post draft mediç
   /admin/products/{productId}/media:
-    security:
-    - bearerAuth: []
     post:
+      security:
+      - bearerAuth: []
       summary: Generate pre-signed URL for post draft media upload
       tags:
       - Media
